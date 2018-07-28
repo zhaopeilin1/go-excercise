@@ -25,5 +25,10 @@ func TestFib(t *testing.T) {
 			t.Errorf("Fib(%d) expect %d,but got%d", pair.n, pair.value, got)
 		}
 	}
+}
+func BenchmarkFib(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Fib(40)
+	}
 
 }
