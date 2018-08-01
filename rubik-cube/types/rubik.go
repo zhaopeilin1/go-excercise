@@ -3,9 +3,6 @@ package types
 import (
 	"image/color"
 
-	//	"math"
-	"sort"
-
 	"gonum.org/v1/gonum/mat"
 )
 
@@ -35,6 +32,9 @@ const (
 	Y             //yellow
 	X             //not a color
 
+	I int = 2
+	J int = 3
+	K int = 5
 )
 
 var colorMap map[BlockColors]color.Color = map[BlockColors]color.Color{
@@ -63,51 +63,21 @@ type Block struct {
 //描述小块的位置
 //(h2,k2,l2) = T(h1,k1,l1)
 type Position struct {
-	h int
-	k int
-	l int
+	H int
+	K int
+	L int
 }
 
 //(i2,j2,k2) = T(i1,j1,k1)
 type Direct struct {
-	i int
-	j int
-	k int
+	I int
+	J int
+	K int
 }
 
 //描述小块顔色取向
 type ColorDerect struct {
-	i int
-	j int
-	k int
-}
-
-//mirror
-//return 1:a mirror ColorDerect,2:the transform process
-//example: 1,-1,1 return 1,1,1  1,-1,1
-func Mirror(in ColorDerect) (out, mirror ColorDerect) {
-	out = ColorDerect{IntAbs(in.i), IntAbs(in.j), IntAbs(in.k)}
-	mirror = ColorDerect{out.i / in.i, out.j / in.j, out.k / in.k}
-	return
-}
-
-//do right hand to a Collor  reorder i,j,k
-//example {2,3,5} -> {2,3,5} {2,5,3}->{2,3,5}, {-5,-3,-2}->{-2,-3,-5}
-//{i,j,k}->{i,j,k} {i,-k,-j}->{i,-j,-k}...
-func RightHandApply(in ColorDerect) ColorDerect {
-	AbsI := IntAbs(in.i)
-	AbsJ := IntAbs(in.j)
-	Absk := IntAbs(in.k)
-	var m map[int]int = map[int]int{AbsI: in.i, AbsJ: in.j, Absk: in.k}
-	list := []int{AbsI, AbsJ, Absk}
-	sort.Ints(list)
-	return ColorDerect{m[list[0]], m[list[1]], m[list[2]]}
-}
-
-func IntAbs(i int) int {
-	if i >= 0 {
-		return i
-	} else {
-		return -i
-	}
+	I int
+	J int
+	K int
 }
