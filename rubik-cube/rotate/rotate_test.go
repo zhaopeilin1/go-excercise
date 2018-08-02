@@ -54,7 +54,7 @@ func TestRightHandApply(t *testing.T) {
 	}
 }
 
-var colorR90s = []struct {
+var colorXR90s = []struct {
 	in  types.ColorDerect
 	out types.ColorDerect
 }{
@@ -64,11 +64,32 @@ var colorR90s = []struct {
 	{types.ColorDerect{I, J, -K}, types.ColorDerect{I, J, K}},
 }
 
-func TestColorR90(t *testing.T) {
-	for _, colorR90 := range colorR90s {
-		out := ColorR90(colorR90.in)
-		if out != colorR90.out {
-			t.Errorf("expectd out %v, but got %v", colorR90.out, out)
+func TestColorXR90(t *testing.T) {
+	for _, colorXR90 := range colorXR90s {
+		out := ColorXR90(colorXR90.in)
+		if out != colorXR90.out {
+			t.Errorf("expectd out %v, but got %v", colorXR90.out, out)
 		}
 	}
+}
+
+var positionXR90s = []struct {
+	in  types.Position
+	out types.Position
+}{
+	{types.Position{1, 1, 1}, types.Position{1, -1, 1}},
+	{types.Position{1, -1, 1}, types.Position{1, -1, -1}},
+	{types.Position{1, -1, -1}, types.Position{1, 1, -1}},
+	{types.Position{1, 1, -1}, types.Position{1, 1, 1}},
+}
+
+func TestPositionXR90(t *testing.T) {
+	for _, positionXR90 := range positionXR90s {
+		out := PositionXR90(positionXR90.in)
+		if out != positionXR90.out {
+			t.Errorf("PositionXR90 expect %v but got %v", positionXR90.out, out)
+		}
+
+	}
+
 }

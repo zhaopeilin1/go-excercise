@@ -38,7 +38,7 @@ func RightHandApply(in types.ColorDerect) types.ColorDerect {
 
 //colorDirect rotate 90
 // mirror  rotate90 mirror  righthand
-func ColorR90(in types.ColorDerect) types.ColorDerect {
+func ColorXR90(in types.ColorDerect) types.ColorDerect {
 	out, mirror := Mirror(in)
 
 	b := mat.NewDense(3, 1, []float64{
@@ -49,6 +49,19 @@ func ColorR90(in types.ColorDerect) types.ColorDerect {
 	c.Mul(types.XR90, b)
 	remirror := ReMirror(types.ColorDerect{int(c.At(0, 0)), int(c.At(1, 0)), int(c.At(2, 0))}, mirror)
 	return RightHandApply(remirror)
+}
+
+func PositionXR90(in types.Position) types.Position {
+	position := mat.NewDense(3, 1, []float64{
+		float64(in.H), float64(in.K), float64(in.L),
+	})
+	// Take the matrix product of a and b and place the result in c.
+	var c mat.Dense
+	c.Inverse(types.XR90)
+
+	var d mat.Dense
+	d.Mul(&c, position)
+	return types.Position{int(d.At(0, 0)), int(d.At(1, 0)), int(d.At(2, 0))}
 }
 
 func IntAbs(i int) int {
