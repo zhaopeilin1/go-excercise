@@ -39,12 +39,12 @@ const (
 
 var colorMap map[BlockColors]color.Color = map[BlockColors]color.Color{
 	W: color.White,
-	R: color.RGBA{255, 0, 0, 1},
-	G: color.RGBA{0, 255, 0, 1},
-	O: color.RGBA{255, 140, 0, 1},
+	R: color.RGBA{255, 0, 0, 255},
+	G: color.RGBA{0, 255, 0, 255},
+	O: color.RGBA{255, 140, 0, 266},
 	//OR 88cc ?
-	B: color.RGBA{0, 0, 255, 1},
-	Y: color.RGBA{255, 255, 0, 1},
+	B: color.RGBA{0, 0, 255, 255},
+	Y: color.RGBA{255, 255, 0, 255},
 	X: color.Black,
 }
 
