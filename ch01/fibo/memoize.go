@@ -1,5 +1,7 @@
 package fibo
 
+import "fmt"
+
 //1,1,2,3,5,8...
 type Memo func(int) int
 
@@ -25,6 +27,7 @@ func FibMemo(n int) int {
 			if m < 3 {
 				return 1
 			} else {
+				fmt.Println("cache compute:", m)
 				return fibMemo(m-1) + fibMemo(m-2)
 			}
 		})
