@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"flag"
 	"io"
+	"io/ioutil"
 	"log"
 	"os"
 	"reflect"
@@ -31,6 +32,8 @@ var (
 	searcher = riot.Engine{}
 	wbs      = map[string]Weibo{}
 
+	webpagedir = flag.String("webpage",
+		"../../testdata/webpages_clean/", "网页txt文件夹")
 	weiboData = flag.String("weibo_data",
 		"../../testdata/weibo_data.txt", "微博数据文件")
 	dictFile = flag.String("dict_file",
@@ -49,6 +52,12 @@ type Weibo struct {
 	UserName     string `json:"user_name"`
 	RepostsCount uint64 `json:"reposts_count"`
 	Text         string `json:"text"`
+}
+
+type Webpage struct {
+	Id     string `json:"id"`
+	Tittle string `json:"tittle"`
+	Text   string `json:"text"`
 }
 
 /*******************************************************************************
@@ -92,6 +101,27 @@ func indexWeibo() {
 
 	searcher.Flush()
 	log.Printf("索引了%d条微博\n", len(wbs))
+}
+
+func indexWebpage() {
+	//读入数据
+	log.Print("添加网页文章索引")
+	files, _ := ioutil.ReadDir(*webpagedir)
+	for index, f := range files {
+		if !f.IsDir() {
+			//			fmt.Println(f.Name())
+			b, _ := ioutil.ReadFile(*webpagedir + f.Name())
+
+			log.Println(strconv.Itoa(index))
+			searcher.Index(strconv.Itoa(index), types.DocData{Content: string(b)})
+
+		}
+
+	}
+	searcher.Flush()
+
+	log.Printf("索引了%d条网页文章\n", len(files))
+
 }
 
 /*******************************************************************************
@@ -165,6 +195,21 @@ func JsonRpcServer(w http.ResponseWriter, req *http.Request) {
 	io.WriteString(w, string(response))
 }
 
+func JsonRpcServer2(w http.ResponseWriter, req *http.Request) {
+	query := req.URL.Query().Get("query")
+	output := searcher.Search(types.SearchReq{Text: query})
+	//log.Println(output)
+
+	// 整理为输出格式
+
+	response, _ := json.Marshal(output.Docs)
+
+	// fmt.Println("response...", response)
+
+	w.Header().Set("Content-Type", "application/json")
+	io.WriteString(w, string(response))
+}
+
 /*******************************************************************************
 	主函数
 *******************************************************************************/
@@ -194,7 +239,8 @@ func main() {
 
 	// 索引
 	log.Println("建索引开始")
-	go indexWeibo()
+	indexWebpage()
+	//	go indexWeibo()
 	log.Println("建索引完毕")
 
 	// 捕获 ctrl-c
@@ -208,7 +254,7 @@ func main() {
 		}
 	}()
 
-	http.HandleFunc("/json", JsonRpcServer)
+	http.HandleFunc("/json", JsonRpcServer2)
 	http.Handle("/", http.FileServer(http.Dir(*staticFolder)))
 	log.Println("服务器启动")
 	log.Fatal(http.ListenAndServe(":8080", nil))

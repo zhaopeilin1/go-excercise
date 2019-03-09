@@ -33,6 +33,9 @@
     <h2>微博全文搜索</h2>
     <p><input type="text" id="query" oninput="search()"></p>
     <div id="output"></div>
+	<h2>网页全文搜索</h2>
+	<p><input type="text" id="query2" oninput="search2()"></p>
+    <div id="output2"></div>
 </body>
 
 <script type="text/javascript" src="jquery.min.js"></script>
@@ -84,6 +87,41 @@
                 }
                 out += "</table>"
                 $('div#output').html(out);
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(xhr.status);
+                alert(thrownError);
+            }
+        });
+    };
+	
+    search2 = function() {
+        var query = $('input#query2').val();
+        $.ajax({
+            url: "/json",
+            type: "GET",
+            data: {
+                query: query
+            },
+            dataType: "json",            
+			 success: function(result) {
+                var out = "<table border=0>"
+                var weibos = new Array();
+
+                for (var i = 0; i < result.length; i++) {
+                    weibos.push(result[i]);
+                }
+
+                for (var i = 0; i < weibos.length; i++) {
+                    out += "<tr>"
+                    out += "<td width=1350px>";
+                   
+                    out += "<p>" + weibos[i].Content + "</p>";
+                    out += "</td>";
+                    out += "</tr>";
+                }
+                out += "</table>"
+                $('div#output2').html(out);
             },
             error: function(xhr, ajaxOptions, thrownError) {
                 alert(xhr.status);
