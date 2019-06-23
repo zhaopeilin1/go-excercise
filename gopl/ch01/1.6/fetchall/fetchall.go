@@ -19,7 +19,13 @@ func main() {
 	for _, url := range os.Args[1:] {
 		go fetch(url, ch)
 	}
-
+	/**
+	  当一个goroutine尝试在一个channel上做send或者receive操作时,这个goroutine会阻塞在调用
+	  处,直到另一个goroutine往这个channel里写入、或者接收值,这样两个goroutine才会继续执行
+	  channel操作之后的逻辑。在这个例子中,每一个fetch函数在执行时都会往channel里发送一个值
+	  (ch <­ expression),主函数负责接收这些值(<­ch)。这个程序中我们用main函数来接收所有fetch函
+	  数传回的字符串,可以避免在goroutine异步执行还没有完成时main函数提前退出。
+	*/
 	for range os.Args[1:] {
 		fmt.Println(<-ch)
 	}
