@@ -1,6 +1,7 @@
 #!bash
 echo $1
 mkdir $1
+#式
 
 touch $1.go
 touch $1_test.go
