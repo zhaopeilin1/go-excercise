@@ -1,4 +1,5 @@
 #!/bin/bash
+#生成代码
 echo $1
 mkdir $1
 cd $1
