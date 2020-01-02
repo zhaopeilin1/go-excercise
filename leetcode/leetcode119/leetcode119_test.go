@@ -10,6 +10,8 @@ var data = []struct {
 	{1, []int{1, 1}},
 	{2, []int{1, 2, 1}},
 	{3, []int{1, 3, 3, 1}},
+
+	{21, []int{1, 3, 3, 1}},
 }
 
 func TestAll(t *testing.T) {
