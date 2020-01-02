@@ -6,7 +6,6 @@ func getRow(rowIndex int) []int {
 		r[i] = cc(rowIndex, i)
 	}
 	return r
-
 }
 
 func cc(n, m int) int {
