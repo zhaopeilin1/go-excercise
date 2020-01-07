@@ -19,7 +19,7 @@ func TestAll(t *testing.T) {
 	for _, d := range data {
 		r := isPowerOfFour(d.in)
 		if r != d.out {
-			t.Error(d.out, r)
+			t.Error(d.in, d.out, r)
 		}
 	}
 

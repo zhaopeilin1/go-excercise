@@ -6,6 +6,7 @@ func isPowerOfFour(num int) bool {
 	}else if (num==1){
 		return true
 	}else {
-		return (num & 0b1010101010101010101010101010100) == num	
+		//4的幂
+		return (num & 0b1010101010101010101010101010101) == num	
 	}	
 }
