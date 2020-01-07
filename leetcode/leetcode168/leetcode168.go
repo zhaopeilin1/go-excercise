@@ -36,13 +36,14 @@ var m1 map[int]string = map[int]string{
 func convertToTitle(n int) string {
 	str := ""
 	weishu, zhi := convertToTitle2(n)
+	fmt.Println(weishu, zhi)
 	str = str + m1[zhi]
 	for weishu > 1 {
-		n = n - pow(26, weishu-1)
+		n = n - zhi*(pow(26, weishu-1))
 		weishu, zhi = convertToTitle2(n)
 		str = str + m1[zhi]
 	}
-	str = str + m1[n]
+	//str = str + m1[n]
 	return str
 }
 
@@ -55,7 +56,7 @@ func pow(m, n int) int {
 }
 
 func convertToTitle2(n int) (int, int) {
-	m := n / 26
+	m := n
 	weishu := 1
 	for m > 26 {
 		m = m / 26
