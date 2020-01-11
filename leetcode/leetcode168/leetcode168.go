@@ -5,6 +5,7 @@ import (
 )
 
 var m1 map[int]string = map[int]string{
+	//0:  "Z",
 	1:  "A",
 	2:  "B",
 	3:  "C",
@@ -34,34 +35,29 @@ var m1 map[int]string = map[int]string{
 }
 
 func convertToTitle(n int) string {
+	//从倒数第一位算起，算出余数，如果整体送去余数还有剩，就继续下一步。
 	str := ""
-	weishu, zhi := convertToTitle2(n)
-	fmt.Println(weishu, zhi)
-	str = str + m1[zhi]
-	for weishu > 1 {
-		n = n - zhi*(pow(26, weishu-1))
-		weishu, zhi = convertToTitle2(n)
-		str = str + m1[zhi]
+	last := 0
+	rest := n
+	i := 0
+	for ; rest > 0 && i < 10; last, rest = calLast(rest) {
+		str = m1[last] + str
+		fmt.Println(last, rest)
+		i++
 	}
-	//str = str + m1[n]
+	str = m1[last] + str
 	return str
 }
 
-func pow(m, n int) int {
-	sum := 1
-	for i := 0; i < n; i++ {
-		sum = sum * m
+func calLast(n int) (int, int) {
+	//计算最后一位，返回计算倒数一位的值。
+	if n > 26 {
+		if n%26 == 0 {
+			return 26, n/26 - 1
+		} else {
+			return n % 26, n / 26
+		}
+	} else {
+		return n, 0
 	}
-	return sum
-}
-
-func convertToTitle2(n int) (int, int) {
-	m := n
-	weishu := 1
-	for m > 26 {
-		m = m / 26
-		weishu = weishu + 1
-	}
-	fmt.Println(n, weishu, m)
-	return weishu, m
 }

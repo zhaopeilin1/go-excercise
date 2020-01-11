@@ -11,4 +11,4 @@ echo "import \"testing\"" >> $1_test.go
 echo  >> $1_test.go
 echo "func TestAll(t *testing.T) {" >>  $1_test.go
 echo  >> $1_test.go
-echo "}" >>  $1_test.go
+echo "}" >> $1_test.go
