@@ -8,6 +8,9 @@ func isPowerOfFour(num int) bool {
 			if (num==i){
 				return true
 			}
+			if(i>num){
+				return false
+			}
 		}
 		return false
 		//4的幂
