@@ -1,17 +1,17 @@
-package leetcode202
+package leetcode204
 
 import "testing"
 
 var data = []struct {
 	in  int
-	out bool
+	out int
 }{
-	{19, true},
+	{10, 4},
 }
 
 func TestAll(t *testing.T) {
 	for _, d := range data {
-		r := isHappy(d.in)
+		r := countPrimes(d.in)
 		if r != d.out {
 			t.Error(d.out, r)
 		}
