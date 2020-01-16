@@ -19,5 +19,4 @@ func TestAll(t *testing.T) {
 			t.Error(d.out, r)
 		}
 	}
-
 }
