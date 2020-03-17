@@ -25,7 +25,6 @@ func myAtoi(str string) int {
 	//找到第一个不是空格的字符，看是否正负号或数字。如果是正负号，截取其后续最大长度的数字。
 	//0开头会怎么样？
 	str = trimLeft([]rune(str))
-
 	str = cutByBlank(str)
 
 	isNegate := good[0] == '-'
