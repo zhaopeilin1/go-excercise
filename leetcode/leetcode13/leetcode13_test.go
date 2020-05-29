@@ -24,7 +24,5 @@ func TestRomanToInt(test *testing.T) {
 		if r != d.result {
 			test.Error("expectd:", d.result, "but got:", r)
 		}
-
 	}
-
 }

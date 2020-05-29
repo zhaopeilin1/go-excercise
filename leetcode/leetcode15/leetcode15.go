@@ -7,4 +7,13 @@ func threeSum(nums []int) [][]int {
 	//分治法？ 分成三种，负，0，正
 	//做成map[int]int. 数字：出现的次数
 	//n平方？
+	m := make(map[int]int)
+	for index, value := range nums {
+		times, exists := m[value]
+		if exists {
+			m[value] = times + 1
+		} else {
+			m[value] = 1
+		}
+	}
 }

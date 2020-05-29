@@ -3,7 +3,7 @@ package rotate
 import (
 	"testing"
 
-	"github.com/zhaopeilin1/go-excercise/rubik-cube/types"
+	"rubik-cube/types"
 )
 
 const (

@@ -7,8 +7,6 @@ import (
 	"image/png"
 	"net/http"
 	"os"
-
-	//	"github.com/zhaopeilin1/go-excercise/rubik-cube/types"
 )
 
 //cuda 图片剪切拉伸

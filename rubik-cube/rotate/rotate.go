@@ -3,7 +3,7 @@ package rotate
 import (
 	"sort"
 
-	"github.com/zhaopeilin1/go-excercise/rubik-cube/types"
+	"rubik-cube/types"
 
 	"gonum.org/v1/gonum/mat"
 )
