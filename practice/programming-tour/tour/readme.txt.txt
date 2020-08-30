@@ -1,0 +1,1 @@
+ ./tour.exe sql struct --username root --password 123456 --db=blog_service  --table blog_tag
