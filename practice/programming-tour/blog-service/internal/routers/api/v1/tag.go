@@ -6,7 +6,8 @@ import (
 	"blog-service/pkg/app"
 	"blog-service/pkg/convert"
 	"blog-service/pkg/errcode"
-	"fmt"
+
+	//	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -71,11 +72,9 @@ func (t Tag) List(c *gin.Context) {
 func (t Tag) Create(c *gin.Context) {
 
 	param := service.CreateTagRequest{}
-	fmt.Println("create:", param)
 	response := app.NewResponse(c)
 	valid, errs := app.BindAndValid(c, &param)
 	if !valid {
-		fmt.Println("create valid fail:", errs)
 		global.Logger.Errorf("app.BindAndValid errs:%v", errs)
 		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
 		return
