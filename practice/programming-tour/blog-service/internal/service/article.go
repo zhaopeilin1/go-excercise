@@ -1,5 +1,9 @@
 package service
 
+import (
+	"blog-service/internal/model"
+)
+
 type ArticleRequest struct {
 	ID    uint32 `form:"id" binding:"required,gte=1"`
 	State uint8  `form:"state,default=1" binding:"oneof=0 1"`
@@ -11,7 +15,7 @@ type ArticleListRequest struct {
 }
 
 type CreateArticleRequest struct {
-	TagID         uint32 `form:"tag_id" binding:"required,gte=1"`
+	//TagID         uint32 `form:"tag_id" binding:"required,gte=1"`
 	Title         string `form:"title" binding:"required,min=2,max=100"`
 	Desc          string `form:"desc" binding:"required,min=2,max=255"`
 	Content       string `form:"content" binding:"required,min=2,max=4294967295"`
@@ -21,8 +25,8 @@ type CreateArticleRequest struct {
 }
 
 type UpdateArticleRequest struct {
-	ID            uint32 `form:"id" binding:"required,gte=1"`
-	TagID         uint32 `form:"tag_id" binding:"required,gte=1"`
+	ID uint32 `form:"id" binding:"required,gte=1"`
+	//TagID         uint32 `form:"tag_id" binding:"required,gte=1"`
 	Title         string `form:"title" binding:"min=2,max=100"`
 	Desc          string `form:"desc" binding:"min=2,max=255"`
 	Content       string `form:"content" binding:"min=2,max=4294967295"`
@@ -33,4 +37,12 @@ type UpdateArticleRequest struct {
 
 type DeleteArticleRequest struct {
 	ID uint32 `form:"id" binding:"required,gte=1"`
+}
+
+func (svc *Service) CreateArticle(param *CreateArticleRequest) (*model.Article, error) {
+	return svc.dao.CreateArticle(param.Title, param.Desc, param.CoverImageUrl, param.Content, param.CreatedBy, param.State)
+}
+
+func (svc *Service) UpdateArticle(param *UpdateArticleRequest) error {
+	return svc.dao.UpdateArticle(param.ID, param.Title, param.Desc, param.CoverImageUrl, param.Content, param.State, param.ModifiedBy)
 }
