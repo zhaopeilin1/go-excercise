@@ -70,11 +70,6 @@ func (d *Dao) GetArticle(id uint32, state uint8) (model.Article, error) {
 	return article.Get(d.engine)
 }
 
-func (d *Dao) DeleteArticle(id uint32, state uint8) error {
-	article := model.Article{Model: &model.Model{Id: id}}
-	return article.Delete(d.engine)
-}
-
 func (d *Dao) CountArticleListByTagID(id uint32, state uint8) (int, error) {
 	article := model.Article{State: state}
 	return article.CountByTagID(d.engine, id)
@@ -82,7 +77,7 @@ func (d *Dao) CountArticleListByTagID(id uint32, state uint8) (int, error) {
 
 func (d *Dao) GetArticleListByTagID(id uint32, state uint8, page, pageSize int) ([]*model.ArticleRow, error) {
 	article := model.Article{State: state}
-	return article.ListByTagId(d.engine, id, app.GetPageOffset(page, pageSize), pageSize)
+	return article.ListByTagID(d.engine, id, app.GetPageOffset(page, pageSize), pageSize)
 }
 
 func set_not_empty(m map[string]interface{}, name, value string) {
@@ -91,26 +86,23 @@ func set_not_empty(m map[string]interface{}, name, value string) {
 	}
 }
 
-func (d *Dao) UpdateArticle(id uint32, title, desc, coverImageUrl, content string, state uint8, modifiedBy string) error {
-	tag := model.Article{
-		Model: &model.Model{
-			Id: id,
-		},
-	}
-	values := map[string]interface{}{
-		"state":       state,
-		"modified_by": modifiedBy,
-	}
-	// if name != "" {
-	// 	values["name"] = name
-	// }
-	set_not_empty(values, "title", title)
-	set_not_empty(values, "desc", desc)
-	set_not_empty(values, "cover_image_url", coverImageUrl)
-	set_not_empty(values, "content", content)
+// func (d *Dao) UpdateArticle(id uint32, title, desc, coverImageUrl, content string, state uint8, modifiedBy string) error {
+// 	tag := model.Article{
+// 		Model: &model.Model{
+// 			Id: id,
+// 		},
+// 	}
+// 	values := map[string]interface{}{
+// 		"state":       state,
+// 		"modified_by": modifiedBy,
+// 	}
+// 	set_not_empty(values, "title", title)
+// 	set_not_empty(values, "desc", desc)
+// 	set_not_empty(values, "cover_image_url", coverImageUrl)
+// 	set_not_empty(values, "content", content)
 
-	return tag.Update(d.engine, values)
-}
+// 	return tag.Update(d.engine, values)
+// }
 
 func (d *Dao) DeleteArticle(id uint32) error {
 

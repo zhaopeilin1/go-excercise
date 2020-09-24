@@ -11,11 +11,11 @@ APP:
   LogFileExt: .log
 
 Database:
-  DBType: mysql
+  DBType: sqlite3
+  DBName: data/blog_service.db
   Username: root
   Password: 123456
-  HKost: 127.0.0.1:3306
-  DBName: blog_service
+  HKost: 127.0.0.1:3306  
   TablePrefix: blog_
   Charset: utf8
   ParseTime: True

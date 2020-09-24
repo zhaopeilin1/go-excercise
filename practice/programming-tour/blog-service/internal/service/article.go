@@ -1,6 +1,7 @@
 package service
 
 import (
+	"blog-service/internal/dao"
 	"blog-service/internal/model"
 )
 
@@ -15,7 +16,7 @@ type ArticleListRequest struct {
 }
 
 type CreateArticleRequest struct {
-	//TagID         uint32 `form:"tag_id" binding:"required,gte=1"`
+	TagID         uint32 `form:"tag_id" binding:"required,gte=1"`
 	Title         string `form:"title" binding:"required,min=2,max=100"`
 	Desc          string `form:"desc" binding:"required,min=2,max=255"`
 	Content       string `form:"content" binding:"required,min=2,max=4294967295"`
@@ -25,8 +26,8 @@ type CreateArticleRequest struct {
 }
 
 type UpdateArticleRequest struct {
-	ID uint32 `form:"id" binding:"required,gte=1"`
-	//TagID         uint32 `form:"tag_id" binding:"required,gte=1"`
+	ID            uint32 `form:"id" binding:"required,gte=1"`
+	TagID         uint32 `form:"tag_id" binding:"required,gte=1"`
 	Title         string `form:"title" binding:"min=2,max=100"`
 	Desc          string `form:"desc" binding:"min=2,max=255"`
 	Content       string `form:"content" binding:"min=2,max=4294967295"`
@@ -40,9 +41,44 @@ type DeleteArticleRequest struct {
 }
 
 func (svc *Service) CreateArticle(param *CreateArticleRequest) (*model.Article, error) {
-	return svc.dao.CreateArticle(param.Title, param.Desc, param.CoverImageUrl, param.Content, param.CreatedBy, param.State)
+	article, err := svc.dao.CreateArticle(&dao.Article{
+		Title:         param.Title,
+		Desc:          param.Desc,
+		Content:       param.Content,
+		CoverImageUrl: param.CoverImageUrl,
+		State:         param.State,
+		CreatedBy:     param.CreatedBy,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	err = svc.dao.CreateArticleTag(article.Id, param.TagID, param.CreatedBy)
+	if err != nil {
+		return nil, err
+	}
+
+	return article, nil
 }
 
 func (svc *Service) UpdateArticle(param *UpdateArticleRequest) error {
-	return svc.dao.UpdateArticle(param.ID, param.Title, param.Desc, param.CoverImageUrl, param.Content, param.State, param.ModifiedBy)
+	err := svc.dao.UpdateArticle(&dao.Article{
+		ID:            param.ID,
+		Title:         param.Title,
+		Desc:          param.Desc,
+		Content:       param.Content,
+		CoverImageUrl: param.CoverImageUrl,
+		State:         param.State,
+		ModifiedBy:    param.ModifiedBy,
+	})
+	if err != nil {
+		return err
+	}
+
+	err = svc.dao.UpdateArticleTag(param.ID, param.TagID, param.ModifiedBy)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

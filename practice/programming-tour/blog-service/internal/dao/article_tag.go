@@ -4,7 +4,7 @@ import (
 	"blog-service/internal/model"
 )
 
-func (d *Dao) GetArticleTagByAID(articleId unint32) (model.ArticleTag, error) {
+func (d *Dao) GetArticleTagByAID(articleId uint32) (model.ArticleTag, error) {
 	articleTag := model.ArticleTag{ArticleId: articleId}
 	return articleTag.GetByAID(d.engine)
 }
