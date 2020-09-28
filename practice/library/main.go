@@ -12,6 +12,8 @@ import (
 
 	"gopkg.in/natefinch/lumberjack.v2"
 
+	"github.com/blevesearch/bleve"
+	// "github.com/blevesearch/bleve/mapping"
 	"github.com/gin-gonic/gin"
 	//"github.com/gin-gonic/gin"
 )
@@ -30,6 +32,11 @@ func init() {
 	err = setupDbEngine()
 	if err != nil {
 		log.Fatalf("init.setupDbEngine err:%v", err)
+	}
+
+	err = setupBleve()
+	if err != nil {
+		log.Fatalf("init.setupBleve err:%v", err)
 	}
 }
 
@@ -81,7 +88,7 @@ func setupDbEngine() error {
 	if err != nil {
 		return err
 	}
-	global.DBEgine.AutoMigrate(&model.Tag{}, &model.Article{}, &model.ArticleTag{})
+	global.DBEgine.AutoMigrate(&model.Tag{}, &model.Article{}, &model.ArticleTag{}, &model.Book{}, &model.Chapter{})
 	return nil
 }
 
@@ -94,4 +101,13 @@ func setupLogger() error {
 	}, "", log.LstdFlags).WithCaller(2)
 
 	return nil
+}
+
+func setupBleve() error {
+	// mapping := bleve.NewIndexMapping()
+	//index, _ := bleve.New(global.AppSetting.BlevePath+"/library.bleve", mapping)
+	index, _ := bleve.Open(global.AppSetting.BlevePath + "/library.bleve")
+	global.Index = &index
+	return nil
+
 }

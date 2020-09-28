@@ -20,6 +20,7 @@ type AppSettingS struct {
 	LogFileExt          string
 	UploadSavePath      string
 	UploadServerUrl     string
+	BlevePath           string
 	UploadBookAllowExts []string
 }
 

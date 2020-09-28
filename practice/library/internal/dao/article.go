@@ -80,12 +80,6 @@ func (d *Dao) GetArticleListByTagID(id uint32, state uint8, page, pageSize int) 
 	return article.ListByTagID(d.engine, id, app.GetPageOffset(page, pageSize), pageSize)
 }
 
-func set_not_empty(m map[string]interface{}, name, value string) {
-	if value != "" {
-		m[name] = value
-	}
-}
-
 // func (d *Dao) UpdateArticle(id uint32, title, desc, coverImageUrl, content string, state uint8, modifiedBy string) error {
 // 	tag := model.Article{
 // 		Model: &model.Model{

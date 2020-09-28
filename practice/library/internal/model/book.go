@@ -13,7 +13,7 @@ type Book struct {
 	//作者，多个作者用逗号分隔
 	Author string `json:author`
 	//字数
-	Length uint32 `json:length`
+	Length int `json:length`
 	//分类
 	Category string `json:category`
 	//描述
@@ -35,9 +35,8 @@ func (model Book) TableName() string {
 func (t Book) Count(db *gorm.DB) (int, error) {
 	var count int
 	if t.Title != "" {
-		db = db.Where("title=?", t.Title)
+		db = db.Where("title like '?%'", t.Title)
 	}
-	//db = db.Where("state = ?", t.State)
 
 	if err := db.Model(&t).Where("is_del = ?", 0).Count(&count).Error; err != nil {
 		return 0, err
@@ -51,12 +50,10 @@ func (t Book) List(db *gorm.DB, pageOffset, pageSize int) ([]*Book, error) {
 
 	if pageOffset >= 0 && pageSize > 0 {
 		db = db.Offset(pageOffset).Limit(pageSize)
-
 	}
 	if t.Title != "" {
-		db.Where("title = ?", t.Title)
+		db.Where("title like '?%'", t.Title)
 	}
-	//db = db.Where("state = ?", t.State)
 
 	if err = db.Where("is_del = ?", 0).Find(&tags).Error; err != nil {
 		return nil, err
@@ -65,8 +62,9 @@ func (t Book) List(db *gorm.DB, pageOffset, pageSize int) ([]*Book, error) {
 
 }
 
-func (t Book) Create(db *gorm.DB) error {
-	return db.Create(&t).Error
+func (t *Book) Create(db *gorm.DB) error {
+	err := db.Create(t).Error
+	return err
 }
 
 func (t Book) Update(db *gorm.DB, values interface{}) error {

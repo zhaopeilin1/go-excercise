@@ -7,6 +7,7 @@ APP:
   DefaultPageSize: 10
   MaxPageSize: 100
   LogSavePath: storage/logs
+  BlevePath: storage
   LogFileName: app
   LogFileExt: .log
   UploadSavePath: storage/uploads

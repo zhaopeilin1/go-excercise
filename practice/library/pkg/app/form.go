@@ -10,6 +10,12 @@ import (
 	val "github.com/go-playground/validator/v10"
 )
 
+func SetNotEmptyStr(m map[string]interface{}, name, value string) {
+	if value != "" {
+		m[name] = value
+	}
+}
+
 type ValidError struct {
 	Key     string
 	Message string

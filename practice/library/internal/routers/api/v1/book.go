@@ -1,13 +1,17 @@
 package v1
 
 import (
+	"library/pkg/upload"
+	"os"
+	"path"
+
+	"io/ioutil"
 	"library/global"
 	"library/internal/service"
 	"library/pkg/app"
+
 	"library/pkg/convert"
 	"library/pkg/errcode"
-
-	//	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,6 +20,44 @@ type Book struct{}
 
 func NewBook() Book {
 	return Book{}
+}
+
+func (t Book) UploadAndIndex(c *gin.Context) {
+	_, fileHeader, err := c.Request.FormFile("file")
+	fileName := fileHeader.Filename
+
+	uniqueFileName := upload.GetUniqueFilePath(fileName)
+	fileHeader.Filename = uniqueFileName
+	upload1 := NewUpload()
+
+	upload1.UploadFile(c)
+
+	response := app.NewResponse(c)
+
+	uploadSavePath := upload.GetSavePath()
+	filePath := path.Join(uploadSavePath, uniqueFileName)
+
+	f, err := os.Open(filePath)
+	if err != nil {
+		response.ToErrorResponse(errcode.ErrorReadFileFail)
+		return
+	}
+	defer f.Close()
+	bytes, err := ioutil.ReadAll(f)
+	if err != nil {
+		response.ToErrorResponse(errcode.ErrorReadFileFail)
+		return
+	}
+	text := string(bytes)
+	svc := service.New(c.Request.Context())
+
+	ext := upload.GetFileExt(fileName)
+
+	bookName := fileName[:len(fileName)-len(ext)]
+
+	svc.IndexBook(text, bookName)
+
+	response.ToResponse(gin.H{"index": uniqueFileName})
 }
 
 func (t Book) Get(c *gin.Context) {}

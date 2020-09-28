@@ -1,6 +1,7 @@
 package upload
 
 import (
+	"fmt"
 	"io"
 	"library/global"
 	"mime/multipart"
@@ -35,6 +36,26 @@ func GetSavePath() string {
 func CheckSavePath(dst string) bool {
 	_, err := os.Stat(dst)
 	return os.IsNotExist(err)
+}
+
+//如果存在 aa.txt，就返回aa(1).txt，一直到...aa(n).txt
+func GetUniqueFilePath(filename string) string {
+	filePath := path.Join(GetSavePath(), filename)
+	_, err := os.Stat(filePath)
+	if os.IsNotExist(err) {
+		return filename
+	} else {
+		ext := GetFileExt(filename)
+		partName := filename[:len(filename)-len(ext)]
+		for i := 1; ; i++ {
+			newFileName := partName + fmt.Sprintf("(%v)", i) + ext
+			filePath = path.Join(GetSavePath(), newFileName)
+			_, err = os.Stat(filePath)
+			if os.IsNotExist(err) {
+				return newFileName
+			}
+		}
+	}
 }
 
 func CheckContainExt(t FileType, name string) bool {
