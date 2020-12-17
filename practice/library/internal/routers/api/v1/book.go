@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"library/internal/model"
 	"library/pkg/upload"
 	"os"
 	"path"
@@ -60,7 +61,75 @@ func (t Book) UploadAndIndex(c *gin.Context) {
 	response.ToResponse(gin.H{"index": uniqueFileName})
 }
 
-func (t Book) Get(c *gin.Context) {}
+func (t Book) Search(c *gin.Context) {
+	param := service.SearchBookRequest{}
+	response := app.NewResponse(c)
+	valid, errs := app.BindAndValid(c, &param)
+	if !valid {
+		global.Logger.Errorf("app.BindAndValid errs:%v", errs)
+		response.ToErrorResponse(errcode.InvalidParams.WithDetails(errs.Errors()...))
+		return
+	}
+
+	svc := service.New(c.Request.Context())
+	pager := app.Pager{Page: app.GetPage(c), PageSize: app.GetPageSize(c)}
+	total, chapters := svc.Search(param.Keyword,&pager)
+	response.ToResponseList(chapters,total)
+}
+
+
+//根据章节id,获取此章节的前n个，后m个章节。
+func (t Book) GetChapters(c *gin.Context) {
+	response := app.NewResponse(c)
+	chapterId := convert.StrTo(c.Param("id")).MustUInt32()
+	svc := service.New(c.Request.Context())
+	chapter, err := svc.GetChapter(chapterId)
+	var chapters []model.Chapter
+	if err != nil {
+		global.Logger.Errorf("GetChapter err:%v", err)
+		response.ToErrorResponse(errcode.ServerError.WithDetails(err.Error()))
+		return
+	}
+	preSize:=convert.StrTo(c.Query("pre")).MustInt()
+	if preSize>0{
+		pre,_ := svc.GetPreNChapter(chapter.BookId,chapter.Offset,preSize)
+		chapters= append(chapters,pre...)
+	}
+	chapters= append(chapters,chapter)
+	nextSize:=convert.StrTo(c.Query("next")).MustInt()
+	if nextSize>0{
+		next,_:=svc.GetNextNChapter(chapter.BookId,chapter.Offset,nextSize)
+		chapters= append(chapters,next...)
+	}
+
+
+
+	response.ToResponseList(chapters,1+preSize+nextSize)
+}
+
+//根据书籍id分页查询章节
+func (t Book) GetBookChapters(c *gin.Context) {
+	response := app.NewResponse(c)
+	bookId := convert.StrTo(c.Param("id")).MustUInt32()
+	svc := service.New(c.Request.Context())
+	c1 := &service.CountChapterRequest{BookId: bookId}
+	total, err := svc.CountChapter(c1)
+	if err != nil {
+		global.Logger.Errorf("GetBookChapters err:%v", err)
+		response.ToErrorResponse(errcode.ServerError.WithDetails(err.Error()))
+		return
+	}
+
+	pager := app.Pager{Page: app.GetPage(c), PageSize: app.GetPageSize(c)}
+	c2 := &service.ChapterListRequest{BookId: bookId}
+	chapters, err := svc.GetBookChapterList(c2,&pager)
+	if err != nil {
+		global.Logger.Errorf("GetBookChapters err:%v", err)
+		response.ToErrorResponse(errcode.ServerError.WithDetails(err.Error()))
+		return
+	}
+	response.ToResponseList(chapters,total)
+}
 
 // @Summary 获取多个标签
 // @Produce  json
@@ -83,16 +152,17 @@ func (t Book) List(c *gin.Context) {
 	}
 	svc := service.New(c.Request.Context())
 	pager := app.Pager{Page: app.GetPage(c), PageSize: app.GetPageSize(c)}
-	totalRows, err := svc.CountTag(&service.CountTagRequest{Name: param.Name, State: param.State})
+	request := &service.BookListRequest{Title: c.GetString("title")}
+	totalRows, err := svc.CountBook(request)
 	if err != nil {
-		global.Logger.Errorf("svc.CountTag err: %v", err)
+		global.Logger.Errorf("svc.CountBook err: %v", err)
 		response.ToErrorResponse(errcode.ErrorCountTagFail)
 		return
 	}
 
-	tags, err := svc.GetTagList(&param, &pager)
+	tags, err := svc.GetBookList(request, &pager)
 	if err != nil {
-		global.Logger.Errorf("svc.GetTagList err :%v", err)
+		global.Logger.Errorf("svc.GetBookList err :%v", err)
 		response.ToErrorResponse(errcode.ErrorGetTagListFail)
 		return
 	}

@@ -1,0 +1,33 @@
+Server:
+  RunMOde: debug # debug test release
+  HttpPort: 8000
+  ReadTimeout: 300
+  WriteTimeout: 3600
+APP:
+  DefaultPageSize: 10
+  MaxPageSize: 100
+  LogSavePath: storage/logs
+  BlevePath: storage
+  LogFileName: app
+  LogFileExt: .log
+  UploadSavePath: storage/uploads
+  UploadServerUrl: http://127.0.0.1:8000/static
+  UploadBookAllowExts:
+    - .txt
+
+Database:
+  DBType: sqlite3
+  DBName: storage/home.db
+  Username: root
+  Password: 123456
+  HKost: 127.0.0.1:3306  
+  TablePrefix: blog_
+  Charset: utf8
+  ParseTime: True
+  MaxIdleConns: 10
+  MaxOpenConns: 30
+JWT:
+#  AppKey: home-system
+  Secret: zhaopeilin
+  Issuer: home-system
+  Expire: 7200

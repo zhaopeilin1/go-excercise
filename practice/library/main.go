@@ -8,6 +8,7 @@ import (
 	"library/pkg/setting"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -46,7 +47,11 @@ func init() {
 // @termsOfService https://github.com/go-programing-tour-book
 func main() {
 	global.Logger.Infof("%s: go-programing-tour-book/%s", "eddycjy", "library")
+
 	gin.SetMode(global.ServerSetting.RunMode)
+	// r := gin.Default()
+	// r.Use(gin.Cors())
+
 	router := routers.NewRouter()
 	s := &http.Server{
 		Addr:           ":" + global.ServerSetting.HttpPort,
@@ -55,6 +60,7 @@ func main() {
 		WriteTimeout:   global.ServerSetting.WriteTimeout,
 		MaxHeaderBytes: 1 << 20,
 	}
+
 	s.ListenAndServe()
 }
 
@@ -88,7 +94,7 @@ func setupDbEngine() error {
 	if err != nil {
 		return err
 	}
-	global.DBEgine.AutoMigrate(&model.Tag{}, &model.Article{}, &model.ArticleTag{}, &model.Book{}, &model.Chapter{})
+	global.DBEgine.AutoMigrate(&model.Book{}, &model.Chapter{}) //&model.Tag{}, &model.Article{}, &model.ArticleTag{},
 	return nil
 }
 
@@ -104,10 +110,20 @@ func setupLogger() error {
 }
 
 func setupBleve() error {
-	// mapping := bleve.NewIndexMapping()
-	//index, _ := bleve.New(global.AppSetting.BlevePath+"/library.bleve", mapping)
-	index, _ := bleve.Open(global.AppSetting.BlevePath + "/library.bleve")
+	var index bleve.Index
+	var err error
+	indexPath := global.AppSetting.BlevePath + "/library.bleve"
+
+	_, err = os.Stat(indexPath)
+	if err != nil && os.IsNotExist(err) {
+		mapping := bleve.NewIndexMapping()
+		index, err = bleve.New(indexPath, mapping)
+	} else {
+		index, err = bleve.Open(indexPath)
+	}
+	if err != nil {
+		return err
+	}
 	global.Index = &index
 	return nil
-
 }

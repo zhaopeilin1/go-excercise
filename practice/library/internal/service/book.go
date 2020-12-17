@@ -2,9 +2,14 @@ package service
 
 import (
 	"fmt"
-	// "io/ioutil"
+	"github.com/blevesearch/bleve"
+	"library/internal/model"
+	"library/pkg/app"
+	"library/pkg/convert"
+
+	"library/global"
+
 	"library/internal/dao"
-	// "library/internal/model"
 	"regexp"
 	"strings"
 )
@@ -12,14 +17,19 @@ import (
 //章节标题的正则表达式
 var chapTitleRegEx = "^.{0,8}[第]? *[一二三四五六七八九十百千万两1234567890 ]+[章]"
 
-type CountBookRequest struct {
-	Name  string `form:"name" binding:"max=100"`
-	State uint8  `form:"state,default=1" binding:"oneof=0 1"`
+//type CountBookRequest struct {
+//	Title  string `form:"title"`
+//	State uint8  `form:"state,default=1" binding:"oneof=0 1"`
+//}
+type SearchBookRequest struct {
+	//BookName  string `form:"book_name" binding:"max=100"`
+	Keyword string  `form:"keyword"`
 }
 
 type BookListRequest struct {
-	Name  string `form:"name" binding:"max=100"`
-	State uint8  `form:"state,default=1" binding:"oneof=0 1"`
+	Title  string `form:"title"`
+	//Name  string `form:"name" binding:"max=100"`
+	//State uint8  `form:"state,default=1" binding:"oneof=0 1"`
 }
 
 type CreateBookRequest struct {
@@ -39,6 +49,9 @@ type DeleteBookRequest struct {
 	ID uint32 `form:"id" binding:"required,gte=1"`
 }
 
+func (svc *Service) CountBook(param *BookListRequest) (int, error) {
+	return svc.dao.CountBook(param.Title)
+}
 func splitBookContent(content string) []*dao.Chapter {
 	lines := strings.Split(content, "\n")
 	re := regexp.MustCompile(chapTitleRegEx)
@@ -48,7 +61,6 @@ func splitBookContent(content string) []*dao.Chapter {
 
 	for index, line := range lines {
 		if re.MatchString(line) {
-			fmt.Println(index, line[:])
 			titleIndexs = append(titleIndexs, index)
 			chapters = append(chapters, &dao.Chapter{Title: line})
 		}
@@ -58,7 +70,6 @@ func splitBookContent(content string) []*dao.Chapter {
 	for i, index := range titleIndexs {
 		chapters[i].Content = strings.Join(lines[start:index], "\n")
 		chapters[i].Length = len(chapters[i].Content)
-		fmt.Println("length:", chapters[i].Length)
 		start = index
 	}
 
@@ -70,7 +81,6 @@ func splitBookContent(content string) []*dao.Chapter {
 
 func (svc *Service) IndexBook(content, title string) error {
 	// global.Logger.Info("title:", title, "content:", content[:240])
-	// fmt.Println(content[:240])
 	//1 create book 2 split content, 3 save chapter and index
 	book := &dao.Book{
 		Title:  title,
@@ -81,30 +91,66 @@ func (svc *Service) IndexBook(content, title string) error {
 		return err
 	}
 
-	// fmt.Println("bookId:", id)
-
 	chapters := splitBookContent(content)
-	for _, chapter := range chapters {
+	for i, chapter := range chapters {
 		chapter.BookId = id
-		_, err = svc.dao.CreateChapter(chapter)
+		chapter.Offset = i
+		chapterId, err := svc.dao.CreateChapter(chapter)
 		if err != nil {
 			return err
 		}
-
+		chapter.ID = chapterId
 	}
-
-	// fmt.Println()
-
+	//章节索引
+	batch := (*global.Index).NewBatch()
+	for _, chapter := range chapters {
+		docId := model.Chapter{}.TableName()+ "_" + fmt.Sprint(chapter.ID)
+		batch.Index(docId, chapter.Content)
+		//(*global.Index).Index(docId, chapter.Content)
+	}
+	fmt.Println("batch_size:",batch.Size())
+	(*global.Index).Batch(batch)
 	return nil
+}
+
+
+
+func (svc *Service) Search(keyword string, pager *app.Pager) (int,[]model.Chapter) {
+	//内容查询。
+	fmt.Println("keyword,",keyword)
+	query := bleve.NewMatchQuery(keyword)
+	request := bleve.NewSearchRequest(query)
+	request.Size = pager.PageSize;
+	request.From = app.GetPageOffset(pager.Page,pager.PageSize)
+	searchResult, err := (*global.Index).Search(request)
+	if err != nil {
+		global.Logger.Errorf("search error %v",err)
+		return 0, make([]model.Chapter,0)
+	}
+	fmt.Println("searchresult:",searchResult)
+	if searchResult.Hits.Len() == 0 {
+		return 0, make([]model.Chapter,0)
+	}
+	fmt.Println("hists size:",len(searchResult.Hits),"len:",searchResult.Hits.Len())
+	ids := make([]uint32,pager.PageSize)
+	for i,doc := range  searchResult.Hits {
+		docID := doc.ID
+		split := strings.Split(docID, "_")
+		//chapterID := strings.Replace(docID,model.Chapter{}.TableName()+ "_" ,"",1)
+		chapterID:=split[len(split)-1]
+		ids[i] =  uint32(convert.StrTo(chapterID).MustInt())
+	}
+	chapters, err := svc.dao.FindChapterByIds(ids)
+	return int(searchResult.Total),chapters
 }
 
 // func (svc *Service) CountBook(param *CountBookRequest) (int, error) {
 // 	return svc.dao.CountBook(param.Name, param.State)
 // }
 
-// func (svc *Service) GetBookList(param *BookListRequest, pager *app.Pager) ([]*model.Book, error) {
-// 	return svc.dao.GetBookList(param.Name, param.State, pager.Page, pager.PageSize)
-// }
+func (svc *Service) GetBookList(param *BookListRequest, pager *app.Pager) ([]*model.Book, error) {
+	return svc.dao.GetBookList(param.Title, pager.Page, pager.PageSize)
+}
 
 // func (svc *Service) CreateBook(param *CreateBookRequest) error {
 // 	return svc.dao.CreateBook(param.Name, param.State, param.CreateBy)

@@ -35,7 +35,7 @@ func (model Book) TableName() string {
 func (t Book) Count(db *gorm.DB) (int, error) {
 	var count int
 	if t.Title != "" {
-		db = db.Where("title like '?%'", t.Title)
+		db = db.Where("title like '%?%'", t.Title)
 	}
 
 	if err := db.Model(&t).Where("is_del = ?", 0).Count(&count).Error; err != nil {
@@ -52,7 +52,7 @@ func (t Book) List(db *gorm.DB, pageOffset, pageSize int) ([]*Book, error) {
 		db = db.Offset(pageOffset).Limit(pageSize)
 	}
 	if t.Title != "" {
-		db.Where("title like '?%'", t.Title)
+		db.Where("title like '%?%'", t.Title)
 	}
 
 	if err = db.Where("is_del = ?", 0).Find(&tags).Error; err != nil {

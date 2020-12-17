@@ -12,7 +12,7 @@ APP:
 
 Database:
   DBType: sqlite3
-  DBName: data/blog_service.db
+  DBName: storage/blog_service.db
   Username: root
   Password: 123456
   HKost: 127.0.0.1:3306  
