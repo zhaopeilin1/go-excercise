@@ -4,12 +4,10 @@ import "github.com/jinzhu/gorm"
 
 type Category struct {
 	*Model
-	// 标签名称
+	// 类目名称
 	Name string `json:"name"`
+	//类目描述
 	Describe string `json:"describe"`
-
-	// 状态 0为禁用、1为启用
-	//State uint8 `json:state`
 }
 
 func (model Category) TableName() string {
@@ -19,7 +17,7 @@ func (model Category) TableName() string {
 func (t Category) Count(db *gorm.DB) (int, error) {
 	var count int
 	if t.Name != "" {
-		db = db.Where("name=?", t.Name)
+		db = db.Where("name like '%?%'", t.Name)
 	}
 
 	if err := db.Model(&t).Where("is_del = ?", 0).Count(&count).Error; err != nil {
@@ -37,7 +35,7 @@ func (t Category) List(db *gorm.DB, pageOffset, pageSize int) ([]*Category, erro
 
 	}
 	if t.Name != "" {
-		db.Where("name = ?", t.Name)
+		db = db.Where("name like '%?%'", t.Name)
 	}
 
 	if err = db.Where("is_del = ?", 0).Find(&Categorys).Error; err != nil {

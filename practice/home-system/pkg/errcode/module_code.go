@@ -15,4 +15,10 @@ var (
 
 	ErrorUploadFileFail = NewError(20030001, "上传文件失败")
 	ErrorReadFileFail   = NewError(20030002, "读取文件失败")
+
+	ErrorGetHomeListFail = NewError(20040001, "获取标签列表失败")
+	ErrorCreateHomeFail  = NewError(20040002, "创建标签失败")
+	ErrorUpdateHomeFail  = NewError(20040003, "更新标签失败")
+	ErrorDeleteHomeFail  = NewError(20040004, "删除标签失败")
+	ErrorCountHomeFail   = NewError(20040005, "统计标签失败")
 )

@@ -48,6 +48,7 @@ func NewRouter() *gin.Engine {
 	//tag := v1.NewTag()
 	book := v1.NewBook()
 	upload := v1.NewUpload()
+	home := v1.NewHome()
 	//user := v1.NewUser()
 	//article := v1.NewArticle()
 
@@ -59,7 +60,7 @@ func NewRouter() *gin.Engine {
 		//跳转到sogo
 		c.Redirect(http.StatusMovedPermanently, "/index.html")
 	})
-	apiv1.Use(middleware.JWT())
+	//apiv1.Use(middleware.JWT()) //JWT登录
 	r.POST("/auth", api.GetAuth)
 	r.POST("/upload/file", upload.UploadFile)
 	{
@@ -68,7 +69,6 @@ func NewRouter() *gin.Engine {
 		//apiv1.PUT("/tags/:id", tag.Update)
 		//apiv1.PATCH("/tags/:id/state", tag.Update)
 		//apiv1.GET("/tags", tag.List)
-
 
 		apiv1.POST("/books/upload", book.UploadAndIndex)
 		apiv1.GET("/books/search", book.Search)
@@ -89,6 +89,9 @@ func NewRouter() *gin.Engine {
 		//apiv1.PATCH("/articles/:id/state", article.Update)
 		//apiv1.GET("/articles/:id", article.Get)
 		//apiv1.GET("/articles", article.List)
+
+		apiv1.POST("/home", home.Create)
+		apiv1.POST("/homes", home.List)
 	}
 	return r
 

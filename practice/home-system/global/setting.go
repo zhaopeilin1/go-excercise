@@ -5,6 +5,8 @@ import (
 	"home-system/pkg/setting"
 
 	"github.com/blevesearch/bleve"
+	"github.com/go-co-op/gocron"
+	"github.com/robfig/cron"
 )
 
 var (
@@ -14,4 +16,6 @@ var (
 	Logger          *logger.Logger
 	Index           *bleve.Index
 	JWTSetting      *setting.JWTSettingS
+	Cron            *cron.Cron
+	Scheduler       *gocron.Scheduler
 )

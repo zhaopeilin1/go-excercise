@@ -14,6 +14,9 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 
 	"github.com/blevesearch/bleve"
+	"github.com/go-co-op/gocron"
+	"github.com/robfig/cron"
+
 	// "github.com/blevesearch/bleve/mapping"
 	"github.com/gin-gonic/gin"
 	//"github.com/gin-gonic/gin"
@@ -36,6 +39,11 @@ func init() {
 	}
 
 	err = setupBleve()
+	if err != nil {
+		log.Fatalf("init.setupBleve err:%v", err)
+	}
+
+	err = setupCron()
 	if err != nil {
 		log.Fatalf("init.setupBleve err:%v", err)
 	}
@@ -100,7 +108,7 @@ func setupDbEngine() error {
 	if err != nil {
 		return err
 	}
-	global.DBEgine.AutoMigrate(&model.Book{}, &model.Chapter{},&model.Auth{}) //&model.Tag{}, &model.Article{}, &model.ArticleTag{},
+	global.DBEgine.AutoMigrate(&model.Book{}, &model.Chapter{}, &model.Auth{}, &model.Home{}) //&model.Tag{}, &model.Article{}, &model.ArticleTag{},
 	return nil
 }
 
@@ -131,5 +139,11 @@ func setupBleve() error {
 		return err
 	}
 	global.Index = &index
+	return nil
+}
+
+func setupCron() error {
+	global.Cron = cron.New()
+	global.Scheduler = gocron.NewScheduler(time.Local)
 	return nil
 }
